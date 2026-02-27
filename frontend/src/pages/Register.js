@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { API, setToken } from "../api";
+import { API, setToken, setConfettiFlag } from "../api";
 import styles from "../styles";
 import Layout from "../components/Layout";
 import FullNameInput from "../components/FullNameInput";
@@ -26,7 +26,9 @@ export default function Register() {
         body: JSON.stringify({ firstName: form.firstName, lastName: form.lastName, email: form.email, password: form.password, phone: form.phone || null, idNumber: form.idNumber || null }),
       });
       if (res.ok) {
-        setToken((await res.json()).token);
+        const data = await res.json();
+        setToken(data.token);
+        if (data.isNewUser) setConfettiFlag();
         nav("/profile");
       } else setMsg({ type: "error", text: await res.text() });
     } catch { setMsg({ type: "error", text: "Could not connect to server." }); }
@@ -62,11 +64,17 @@ export default function Register() {
             {show.phone ? "▾" : "📱"}
           </button>
           <button type="button" style={{ ...styles.iconBtn, fontSize: 20 }} onClick={() => toggle("id")} title="ID Number">
-            {show.id ? "▾" : "🪪"}
+            {show.id ? "▾" : "📇"}
           </button>
         </div>
-        {show.phone && <input style={styles.input} placeholder="Phone Number" type="tel" value={form.phone} onChange={set("phone")} />}
-        {show.id && <input style={styles.input} placeholder="ID Number" value={form.idNumber} onChange={set("idNumber")} />}
+        {show.phone && <input style={styles.input} placeholder="Phone Number" type="tel" value={form.phone}
+          onChange={set("phone")}
+          onKeyDown={e => { if (e.key.length === 1 && (!/[0-9]/.test(e.key) || form.phone.length >= 15)) e.preventDefault(); }}
+          maxLength={15} />}
+        {show.id && <input style={styles.input} placeholder="ID Number" value={form.idNumber}
+          onChange={set("idNumber")}
+          onKeyDown={e => { if (e.key.length === 1 && (!/[0-9]/.test(e.key) || form.idNumber.length >= 13)) e.preventDefault(); }}
+          maxLength={13} />}
 
         {msg && <div style={styles[msg.type]}>{msg.text}</div>}
         <button style={loading || !passwordsOk ? styles.btnDisabled : styles.btn} disabled={loading || !passwordsOk}>

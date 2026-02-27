@@ -10,3 +10,4 @@ WORKDIR /app
 COPY --from=build /out .
 ENV ASPNETCORE_URLS=http://+:80
 ENTRYPOINT ["dotnet", "AuthApi.dll"]
+

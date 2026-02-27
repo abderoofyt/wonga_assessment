@@ -5186,11 +5186,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Abderoof\\Desktop\\assessment\\backend\\AuthApi.Tests\\AuthApi.Tests.csproj",
+      "projectUniqueName": "C:\\Users\\Abderoof\\Desktop\\assessment\\wonga_assessment\\backend\\AuthApi.Tests\\AuthApi.Tests.csproj",
       "projectName": "AuthApi.Tests",
-      "projectPath": "C:\\Users\\Abderoof\\Desktop\\assessment\\backend\\AuthApi.Tests\\AuthApi.Tests.csproj",
+      "projectPath": "C:\\Users\\Abderoof\\Desktop\\assessment\\wonga_assessment\\backend\\AuthApi.Tests\\AuthApi.Tests.csproj",
       "packagesPath": "C:\\Users\\Abderoof\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Abderoof\\Desktop\\assessment\\backend\\AuthApi.Tests\\obj\\",
+      "outputPath": "C:\\Users\\Abderoof\\Desktop\\assessment\\wonga_assessment\\backend\\AuthApi.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Users\\Abderoof\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder"
@@ -5209,8 +5209,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\Abderoof\\Desktop\\assessment\\backend\\AuthApi\\AuthApi.csproj": {
-              "projectPath": "C:\\Users\\Abderoof\\Desktop\\assessment\\backend\\AuthApi\\AuthApi.csproj"
+            "C:\\Users\\Abderoof\\Desktop\\assessment\\wonga_assessment\\backend\\AuthApi\\AuthApi.csproj": {
+              "projectPath": "C:\\Users\\Abderoof\\Desktop\\assessment\\wonga_assessment\\backend\\AuthApi\\AuthApi.csproj"
             }
           }
         }

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { API, getToken, clearToken } from "../api";
+import { API, getToken, clearToken, popConfettiFlag } from "../api";
 import styles from "../styles";
 import Layout from "../components/Layout";
 import LoanCalculator from "../components/LoanCalculator";
@@ -17,27 +17,29 @@ export default function Me() {
   const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);
   const [confetti, setConfetti] = useState(false);
+  const [firstLoanModal, setFirstLoanModal] = useState(false);
   const prevLevel = useRef(null);
   const nav = useNavigate();
 
   const popConfetti = () => { setConfetti(true); setTimeout(() => setConfetti(false), 3000); };
 
-  const fetchUser = useCallback(() =>
-    fetch(`${API}/profile`, { headers: { Authorization: `Bearer ${getToken()}` } })
-      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .then(u => {
-        // Only fire confetti on level up (not on initial load)
-        if (prevLevel.current !== null && u.level > prevLevel.current) popConfetti();
-        prevLevel.current = u.level;
-        setUser(u); setForm(u);
-      })
-      .catch(() => { clearToken(); nav("/login"); }), [nav]);
+  const load = useCallback(async () => {
+    try {
+      const headers = { Authorization: `Bearer ${getToken()}` };
+      const [uRes, lRes] = await Promise.all([
+        fetch(`${API}/profile`, { headers }),
+        fetch(`${API}/loans`,   { headers }),
+      ]);
+      if (!uRes.ok) throw new Error();
+      const [u, l] = await Promise.all([uRes.json(), lRes.json()]);
+      if (prevLevel.current !== null && u.level > prevLevel.current) popConfetti();
+      if (prevLevel.current === null && popConfettiFlag()) popConfetti(); // new user or first login
+      prevLevel.current = u.level;
+      setUser(u); setForm(u); setLoans(l);
+    } catch { clearToken(); nav("/login"); }
+  }, [nav]);
 
-  const fetchLoans = useCallback(() =>
-    fetch(`${API}/loans`, { headers: { Authorization: `Bearer ${getToken()}` } })
-      .then(r => r.json()).then(setLoans).catch(() => {}), []);
-
-  useEffect(() => { fetchUser(); fetchLoans(); }, [fetchUser, fetchLoans]);
+  useEffect(() => { load(); }, [load]);
 
   const save = async () => {
     setLoading(true); setMsg(null);
@@ -55,7 +57,7 @@ export default function Me() {
       method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
       body: JSON.stringify({ type }),
     });
-    if (res.ok) { fetchUser(); fetchLoans(); }
+    if (res.ok) { load(); }
   };
 
   const set = (f) => (e) => setForm({ ...form, [f]: e.target.value });
@@ -113,11 +115,30 @@ export default function Me() {
             <button style={styles.btnLogout} onClick={() => { clearToken(); nav("/login"); }}>Logout</button>
           </div>
         </> : <>
-          {["firstName", "lastName", "phone", "idNumber"].map((f, i) => (
-            <input key={f} style={{ ...styles.input, marginTop: i > 0 ? 8 : 0 }}
-              placeholder={["First Name", "Last Name", "Phone (optional)", "ID Number (optional)"][i]}
-              value={form[f] || ""} onChange={set(f)} />
-          ))}
+          {[
+            { f: "firstName", label: "First Name",           max: 50, type: "name"  },
+            { f: "lastName",  label: "Last Name",            max: 50, type: "name"  },
+            { f: "phone",     label: "Phone (optional)",     max: 15, type: "phone" },
+            { f: "idNumber",  label: "ID Number (optional)", max: 13, type: "id"    },
+          ].map(({ f, label, max, type }, i) => {
+            const val = form[f] || "";
+            const near = val.length >= max - 10;
+            const atMax = val.length >= max;
+            const onKeyDown = (e) => {
+              if (e.key.length !== 1) return;
+              if (type === "name"  && /[0-9]/.test(e.key)) { e.preventDefault(); return; }
+              if (type === "phone" && (!/[0-9]/.test(e.key) || val.length >= 15)) { e.preventDefault(); return; }
+              if (type === "id"    && (!/[0-9]/.test(e.key) || val.length >= 13)) { e.preventDefault(); return; }
+            };
+            return (
+              <div key={f} style={{ marginTop: i > 0 ? 8 : 0 }}>
+                <input style={styles.input} placeholder={label} value={val}
+                  onChange={e => setForm(s => ({ ...s, [f]: e.target.value }))}
+                  onKeyDown={onKeyDown} maxLength={max} />
+                {near && <span style={{ fontSize: 10, color: atMax ? "#b91c1c" : "#999", marginLeft: 4 }}>{val.length}/{max}</span>}
+              </div>
+            );
+          })}
           {msg && <div style={{ ...styles[msg.type], marginTop: 8 }}>{msg.text}</div>}
           <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
             <button style={loading ? styles.btnDisabled : styles.btn} onClick={save} disabled={loading}>{loading ? "Saving..." : "Save"}</button>
@@ -127,7 +148,7 @@ export default function Me() {
       </>}
 
       {/* Apply Tab */}
-      {tab === 1 && <LoanCalculator isFirstLoan={loans.length === 0} onApplied={(leveledUp) => { fetchUser(); fetchLoans(); setTab(2); if (leveledUp) popConfetti(); }} />}
+      {tab === 1 && <LoanCalculator isFirstLoan={loans.length === 0} onApplied={(leveledUp) => { load(); setTab(2); if (leveledUp) { popConfetti(); setFirstLoanModal(true); } }} />}
 
       {/* My Loans Tab */}
       {tab === 2 && <>
@@ -145,7 +166,7 @@ export default function Me() {
             <div style={{ fontSize: 12, color: "#888" }}>{loan.period} months · R {loan.instalment}/mo · Due {loan.repaymentDate}</div>
             {loan.status === "active" && (
               <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-                <button style={{ ...styles.btn, flex: 1, padding: 8, fontSize: 12 }} onClick={() => repay(loan.id, "early")}>Repay Early</button>
+                <button style={{ ...styles.btnGreen, flex: 1, padding: 8, fontSize: 12 }} onClick={() => repay(loan.id, "early")}>Repay Early</button>
                 <button style={{ ...styles.btn, flex: 1, padding: 8, fontSize: 12 }} onClick={() => repay(loan.id, "ontime")}>Repay On Time</button>
                 <button style={{ ...styles.btnLogout, flex: 1, padding: 8, fontSize: 12, marginTop: 0 }} onClick={() => repay(loan.id, "late")}>Repay Late</button>
               </div>
@@ -154,6 +175,18 @@ export default function Me() {
           </div>
         ))}
       </>}
+      {firstLoanModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 9000, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ background: "#fff", borderRadius: 16, padding: 36, maxWidth: 360, textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>🎉</div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: "#1a56db", marginBottom: 8 }}>Congratulations!</div>
+            <div style={{ fontSize: 15, color: "#555", marginBottom: 24, lineHeight: 1.5 }}>
+              Welcome to Level 2! Thanks for taking your first loan out with us — we're excited to be part of your journey.
+            </div>
+            <button style={{ ...styles.btn, width: "100%" }} onClick={() => setFirstLoanModal(false)}>Let's Go! 🚀</button>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }
