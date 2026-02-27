@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "mWUfEApuDyQ=",
+  "dgSpecHash": "5mRp9wslGT4=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Abderoof\\Desktop\\assessment\\wonga_assessment\\backend\\AuthApi\\AuthApi.csproj",
+  "projectFilePath": "C:\\Users\\Abderoof\\Documents\\GitHub\\wonga_assessment\\backend\\AuthApi\\AuthApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Abderoof\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\Abderoof\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",

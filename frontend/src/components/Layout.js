@@ -1,13 +1,13 @@
 import styles from "../styles";
 
 const messages = {
-  login:    { title: "Welcome back.",       sub: "Good to see you again. Sign in to pick up where you left off." },
-  register: { title: "Join Wonga.",         sub: "Quick to set up. Try not to forget your password this time. 😉" },
+  login:    { title: "Welcome.",       sub: "Good to see you. Sign in or Sign up. Start by Entering your Email." },
+  register: { title: "Join Wonga.",         sub: "Quick set up. Try not to forget your password. Click 🔒 to confirm your password to be more secure." },
   me:       { title: "You're all set.",     sub: "Looks like you're ready for a loan. Let's get you sorted." },
 };
 
 const mobileTag = {
-  login:    "Welcome back.",
+  login:    "Welcome.",
   register: "Create your account.",
   me:       "You're all set.",
 };

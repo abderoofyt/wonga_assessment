@@ -3144,11 +3144,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Abderoof\\Desktop\\assessment\\wonga_assessment\\backend\\AuthApi\\AuthApi.csproj",
+      "projectUniqueName": "C:\\Users\\Abderoof\\Documents\\GitHub\\wonga_assessment\\backend\\AuthApi\\AuthApi.csproj",
       "projectName": "AuthApi",
-      "projectPath": "C:\\Users\\Abderoof\\Desktop\\assessment\\wonga_assessment\\backend\\AuthApi\\AuthApi.csproj",
+      "projectPath": "C:\\Users\\Abderoof\\Documents\\GitHub\\wonga_assessment\\backend\\AuthApi\\AuthApi.csproj",
       "packagesPath": "C:\\Users\\Abderoof\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Abderoof\\Desktop\\assessment\\wonga_assessment\\backend\\AuthApi\\obj\\",
+      "outputPath": "C:\\Users\\Abderoof\\Documents\\GitHub\\wonga_assessment\\backend\\AuthApi\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Users\\Abderoof\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder"
